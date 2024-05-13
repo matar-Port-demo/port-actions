@@ -2,18 +2,6 @@ name: Open Slack Channel
 on:
   workflow_dispatch:
     inputs:
-      channel_name:
-        description: Name of the public or private channel to create.
-        required: true
-        type: string
-      is_private:
-        description: Create a private channel instead of a public one.
-        required: false
-        type: boolean
-      members:
-        description: Add members manually to the channel.
-        type: array
-        required: false
       port_payload:
         description: Port's payload, including details for who triggered the action and general context (blueprint, run ID, etc...).
         required: true
