@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Print Port Payload
-        run: echo ${{ github.event.inputs.port_payload.run.id }}
+        run: echo ${{ github.event.inputs.port_payload).run.id }}
         
       - name: Log Executing Request to Open Channel
         uses: port-labs/port-github-action@v1
@@ -22,7 +22,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload.run.id }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: "About to create a conversation channel in slack..."
 
       - name: Create Slack Channel
