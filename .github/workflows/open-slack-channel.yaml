@@ -7,9 +7,13 @@ on:
         required: true
 
 jobs:
+
   open-slack-channel:
     runs-on: ubuntu-latest
     steps:
+      - name: Print Port Payload
+        run: echo "Port Payload: ${{ github.event.inputs.port_payload }}"
+        
       - name: Log Executing Request to Open Channel
         uses: port-labs/port-github-action@v1
         with:
