@@ -17,7 +17,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).context.runId }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
           logMessage: "About to create a conversation channel in slack..."
 
       - name: Create Slack Channel
@@ -28,7 +28,7 @@ jobs:
           response=$(curl -s -X POST "https://slack.com/api/conversations.create" \
             -H "Authorization: Bearer $SLACK_TOKEN" \
             -H "Content-Type: application/json" \
-            --data "{\"name\": \"${{ github.event.inputs.channel_name }}\",\"is_private\": ${{ github.event.inputs.is_private }} }")
+            --data "{\"name\": \"incident-${{ github.event.inputs.workflowInputs.port_payload.event.diff.after.identifier }}\",\"is_private\": true }")
 
           echo "API Response: $response"
 
@@ -54,7 +54,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).context.runId }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
           logMessage: "Failed to create slack channel: ${{env.CREATE_CHANNEL_ERROR}} ❌"
 
       - name: Log If Create Channel Request is Successful
@@ -64,7 +64,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).context.runId }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
           logMessage: "Channel created successfully, channel Id: ${{env.CHANNEL_ID}} ✅"
 
       - name: Checkout code
@@ -78,8 +78,8 @@ jobs:
           CHANNEL_ID: ${{env.CHANNEL_ID}}
           CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
-          RUN_ID: ${{ fromJson(github.event.inputs.port_payload).context.runId }}
-          MEMBER_EMAILS: ${{ toJSON(github.event.inputs.members) }}
+          RUN_ID: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
+          MEMBER_EMAILS: "['matar@getport.io', 'zohar@getport.io', 'bogu@getport.io']"
         run: |
           cd slack
           chmod +x add-members-to-channel.sh
@@ -92,5 +92,5 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).context.runId }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
           logMessage: "Successfully opened slack channel: ${{env.CHANNEL_ID}} ✅"
