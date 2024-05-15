@@ -76,7 +76,7 @@ jobs:
           CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
           RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          MEMBER_EMAILS: toJson("['matar@getport.io', 'zohar@getport.io', 'bogu@getport.io']")
+          MEMBER_EMAILS: fromJson(["matar@getport.io", "zohar@getport.io", "bogu@getport.io"])
         run: |
           cd slack
           chmod +x add-members-to-channel.sh
