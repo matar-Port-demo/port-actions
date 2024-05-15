@@ -1,18 +1,19 @@
 name: Open Slack Channel
+
 on:
   workflow_dispatch:
     inputs:
       port_payload:
-        description: Port's payload, including details for who triggered the action and general context (blueprint, run ID, etc...).
+        description: "Port's payload, including details for who triggered the action and general context (blueprint, run ID, etc...)."
         required: true
 
 jobs:
-
   open-slack-channel:
     runs-on: ubuntu-latest
+
     steps:
       - name: Print Port Payload
-        run: echo "Port Payload: ${{ github.event.inputs.port_payload }}"
+        run: echo ${{ github.event.inputs.port_payload }}
         
       - name: Log Executing Request to Open Channel
         uses: port-labs/port-github-action@v1
@@ -21,7 +22,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
+          runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: "About to create a conversation channel in slack..."
 
       - name: Create Slack Channel
@@ -29,18 +30,12 @@ jobs:
         env:
           SLACK_TOKEN: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
         run: |
-          response=$(curl -s -X POST "https://slack.com/api/conversations.create" \
-            -H "Authorization: Bearer $SLACK_TOKEN" \
-            -H "Content-Type: application/json" \
-            --data "{\"name\": \"incident-${{ github.event.inputs.workflowInputs.port_payload.event.diff.after.identifier }}\",\"is_private\": true }")
-
+          response=$(curl -s -X POST "https://slack.com/api/conversations.create"             -H "Authorization: Bearer $SLACK_TOKEN"             -H "Content-Type: application/json"             --data "{\"name\": \"incident-${{ fromJson(github.event.inputs.port_payload).event.diff.after.identifier }}\",\"is_private\": true }")
           echo "API Response: $response"
-
           if [[ "$(echo $response | jq -r '.ok')" == "true" ]]; then
             channel_id=$(echo $response | jq -r '.channel.id')
             echo "Channel ID: $channel_id"
             echo "CHANNEL_ID=$channel_id" >> $GITHUB_ENV
-
           else
             echo "Failed to create Slack channel. Channel ID is null."
             error=$(echo $response | jq -r '.error')
@@ -58,18 +53,19 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
-          logMessage: "Failed to create slack channel: ${{env.CREATE_CHANNEL_ERROR}} ❌"
+          runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
+          logMessage: "Failed to create slack channel: ${{ env.CREATE_CHANNEL_ERROR }} ❌"
 
       - name: Log If Create Channel Request is Successful
+        if: success()
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
-          logMessage: "Channel created successfully, channel Id: ${{env.CHANNEL_ID}} ✅"
+          runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
+          logMessage: "Channel created successfully, channel Id: ${{ env.CHANNEL_ID }} ✅"
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -79,10 +75,10 @@ jobs:
         if: success()
         env:
           SLACK_TOKEN: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
-          CHANNEL_ID: ${{env.CHANNEL_ID}}
+          CHANNEL_ID: ${{ env.CHANNEL_ID }}
           CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
-          RUN_ID: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
+          RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           MEMBER_EMAILS: "['matar@getport.io', 'zohar@getport.io', 'bogu@getport.io']"
         run: |
           cd slack
@@ -90,11 +86,12 @@ jobs:
           bash add-members-to-channel.sh "$SLACK_TOKEN" "$CHANNEL_ID" "$CLIENT_ID" "$CLIENT_SECRET" "$RUN_ID" "$MEMBER_EMAILS"
 
       - name: Log Successful Action
+        if: success()
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{ fromJson(github.event.inputs.port_payload).workflowInputs.port_payload.run.id }}
-          logMessage: "Successfully opened slack channel: ${{env.CHANNEL_ID}} ✅"
+          runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
+          logMessage: "Successfully opened slack channel: ${{ env.CHANNEL_ID }} ✅"
