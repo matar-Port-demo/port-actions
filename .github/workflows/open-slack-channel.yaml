@@ -190,7 +190,7 @@ jobs:
           slack-bot-user-oauth-access-token: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
           slack-channel: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           slack-text: | 
-            ❗️ New Incident reported - ${{ env.PD_INCIDENT_TITLE }} ❗️
+            :rotating_light: New Incident reported - ${{ env.PD_INCIDENT_TITLE }} :rotating_light:
               - Urgency: ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}
               - <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
               - <${{ steps.create-github-issue.outputs.url }}|GitHub Issue>
