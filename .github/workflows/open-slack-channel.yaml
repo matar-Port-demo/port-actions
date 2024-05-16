@@ -68,7 +68,7 @@ jobs:
           
           if [ "$ok" == "true" ]; then
             echo "Channel '$channel_name' created successfully."
-            channel_id=$(echo $response | jq -r '.channel.id | ascii_downcase')
+            channel_id=$(echo $response | jq -r '.channel.id')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
