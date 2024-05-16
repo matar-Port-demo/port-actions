@@ -69,7 +69,7 @@ jobs:
           if [ "$ok" == "true" ]; then
             echo "Channel '$CHANNEL_NAME' created successfully."
             channel_id=$(echo $response | jq -r '.channel.id')
-            echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_ACTION
+            echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
             echo "SLACK_CHANNEL_URL=https://slack.com/app_redirect?channel=$channel_id" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
@@ -111,15 +111,16 @@ jobs:
           CHANNEL_ID: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
-          CHANNEL_NAME: incident-${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
+          CHANNEL_NAME: incident-${{ env.PD_INCIDENT_ID }}
           RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           MEMBER_EMAILS: "('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')"
         run: |
-          for MEMBER in "${MEMBER_EMAILS[@]}"; do
+          members=('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')
+          for member in "${members[@]}"; do
             add_user_response=$(curl -s -X POST "https://slack.com/api/conversations.invite" \
-                -H "Authorization: Bearer $TOKEN" \
+                -H "Authorization: Bearer $SLACK_TOKEN" \
                 -H "Content-Type: application/json" \
-                -d "{\"channel\":\"$CHANNEL_ID\", \"users\":\"$MEMBER\"}")
+                -d "{\"channel\":\"$CHANNEL_ID\", \"users\":\"$member\"}")
             
             user_ok=$(echo $add_user_response | jq -r '.ok')
             if [ "$user_ok" == "true" ]; then
