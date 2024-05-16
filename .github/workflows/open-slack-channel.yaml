@@ -151,14 +151,7 @@ jobs:
           slack-function: send-message
           slack-bot-user-oauth-access-token: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
           slack-channel: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
-          slack-text: | 
-            ❗️ New Incident created - ${{ env.PD_INCIDENT_TITLE }}
-            *  Urgency -
-            * <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
-            * <${{ steps.create-github-issue.outputs.url }}|Url to GitHub Issue>
-            
-            The affected service is <service name> with hyper link
-            Upstream services that can be affected: 
+          slack-text: "❗️ New Incident created - ${{ env.PD_INCIDENT_TITLE }} ❗️\n*  Urgency - ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}\n* <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>\n* <${{ steps.create-github-issue.outputs.url }}|Url to GitHub Issue>\n\nThe affected service is <service name> with hyper link\nUpstream services that can be affected:"
             <list of upstream services with hyperlink as bonus> 
 
       - name: Log Successful Action
