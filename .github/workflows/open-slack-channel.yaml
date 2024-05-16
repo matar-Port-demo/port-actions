@@ -113,10 +113,11 @@ jobs:
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
           CHANNEL_NAME: incident-${{ env.PD_INCIDENT_ID }}
           RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          MEMBER_EMAILS: "('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')"
+          # MEMBER_EMAILS: "('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')"
         run: |
           members=('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')
           for member in "${members[@]}"; do
+            echo $member
             add_user_response=$(curl -s -X POST "https://slack.com/api/conversations.invite" \
                 -H "Authorization: Bearer $SLACK_TOKEN" \
                 -H "Content-Type: application/json" \
