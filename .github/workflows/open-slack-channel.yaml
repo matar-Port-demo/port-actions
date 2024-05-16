@@ -57,17 +57,18 @@ jobs:
           CHANNEL_NAME: incident-${{ env.PD_INCIDENT_ID }}
           SLACK_TOKEN: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
         run: |
+          channel_name=$(echo "${{env.CHANNEL_NAME}}" | tr '[:upper:]' '[:lower:]')
           response=$(curl -s -X POST "https://slack.com/api/conversations.create" \
             -H "Authorization: Bearer ${SLACK_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "{\"name\":\"$CHANNEL_NAME\"}")
+            -d "{\"name\":\"$channel_name\"}")
         
           # Check if the channel was created successfully
           ok=$(echo $response | jq -r '.ok')
           
           if [ "$ok" == "true" ]; then
-            echo "Channel '$CHANNEL_NAME' created successfully."
-            channel_id=$(echo $response | jq -r '.channel.id')
+            echo "Channel '$channel_name' created successfully."
+            channel_id=$(echo $response | jq -r '.channel.id | ascii_downcase')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
