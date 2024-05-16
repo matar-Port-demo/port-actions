@@ -144,7 +144,7 @@ jobs:
           done
 
       - name: Send Slack Message
-        uses: archive/github-actions-slack@v2
+        uses: archive/github-actions-slack@v2.9.0
         id: send-message
 
         with:
