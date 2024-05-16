@@ -69,9 +69,6 @@ jobs:
             echo "Channel '$CHANNEL_NAME' created successfully."
             channel_id=$(echo $response | jq -r '.channel.id')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
-            slack_channel_url="https://slack.com/app_redirect?channel=$channel_id"
-            echo $slack_channel_url
-            echo "SLACK_CHANNEL_URL=$slack_channel_url" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
             echo "Error creating channel: $error"
@@ -93,6 +90,8 @@ jobs:
       - name: Log successful Slack channel creation
         if: success()
         uses: port-labs/port-github-action@v1
+        env:
+          SLACK_CHANNEL_URL: https://slack.com/app_redirect?channel=${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
@@ -100,7 +99,7 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: |
-            Channel created successfully - ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_URL }} ✅
+            Channel created successfully - ${{ env.SLACK_CHANNEL_URL }} ✅
             Adding relevant users to the slack channel...
 
       - name: Add Members to Slack Channel
@@ -146,16 +145,15 @@ jobs:
       - name: Send Slack Message
         uses: archive/github-actions-slack@v2.9.0
         id: send-message
-
         with:
           slack-function: send-message
           slack-bot-user-oauth-access-token: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
           slack-channel: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           slack-text: | 
-            ❗️ New Incident created - ${{ env.PD_INCIDENT_TITLE }}
+            ❗️ New Incident reported - ${{ env.PD_INCIDENT_TITLE }} ❗️
               *  Urgency - ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}
               * <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
-              * <${{ steps.create-github-issue.outputs.url }}|Url to GitHub Issue>
+              * <${{ steps.create-github-issue.outputs.url }}|GitHub Issue>
             
             The affected service is <service name> with hyper link
             Upstream services that can be affected: 
