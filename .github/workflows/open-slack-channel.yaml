@@ -166,12 +166,20 @@ jobs:
               ],
               "combinator": "and"
             }
-            
+      
+      - name: Extract realted service
+        id: get-service-info
+        run: |
+          echo "SERVICE_IDENTIFIER=${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].identifier" >> $GITHUB_OUTPUT
+          echo "SERVICE_TITLE=${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].title" >> $GITHUB_OUTPUT
+          service_deps=$(echo "${{ steps.get-incidient-service.outputs.entities[0].relations.dependencies }}" | jq 'map("<https://app.getport.io/serviceEntity?identifier=(.)|\(.)>") | join(", ")')
+          echo "DEPS_WITH_HYPERLINK=$service_deps" >> $GITHUB_OUTPUT
+
       - name: Send Slack Message
         uses: archive/github-actions-slack@v2.9.0
         env:
-          SVC_ENTITY_URL: https://app.getport.io/serviceEntity?identifier=${{ steps.get-incidient-service.outputs.entities[0].identifier }}
-          SVC_ENTITY_TITLE: ${{ steps.get-incidient-service.outputs.entities[0].title }}
+          SVC_ENTITY_URL: https://app.getport.io/serviceEntity?identifier=${{ steps.get-service-info.outputs.SERVICE_IDENTIFIER }}
+          SVC_ENTITY_TITLE: ${{ steps.get-service-info.outputs.SERVICE_TITLE }}
         id: send-message
         with:
           slack-function: send-message
@@ -185,7 +193,7 @@ jobs:
             
             The affected service is <${{ env.SVC_ENTITY_URL }}|${{ env.SVC_ENTITY_TITLE }}>
             Upstream services that can be affected: 
-              ${{ steps.get-incidient-service.outputs.entities[0].relations.dependencies }}
+              ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
 
       - name: Log Successful Action
         if: success()
