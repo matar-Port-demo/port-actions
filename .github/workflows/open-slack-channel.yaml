@@ -13,7 +13,10 @@ jobs:
     env:
       PD_INCIDENT_ID: ${{ fromJson(inputs.port_payload).event.diff.after.identifier }}
       PD_INCIDENT_URL: ${{ fromJson(inputs.port_payload).event.diff.after.properties.url }}
+      PD_INCIDENT_TITLE: ${{ fromJson(inputs.port_payload).event.diff.after.title }}
+
       PORT_INCIDENT_URL: https://app.getport.io/pagerdutyIncidentEntity?identifier=${{ fromJson(inputs.port_payload).event.diff.after.identifier }}
+
 
     steps:
       - uses: actions/checkout@v4
@@ -42,13 +45,14 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: | 
-            Github issue created successfully: ${{ steps.create-github-issue.outputs.url }}
+            Github issue created successfully - ${{ steps.create-github-issue.outputs.url }}
 
             Creating a new Slack channel for this incident...
 
       - name: Create Slack Channel
-        id: create_channel
+        id: create-slack-channel
         env:
+          CHANNEL_NAME: incident-${{ env.PD_INCIDENT_ID }}
           SLACK_TOKEN: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
         run: |
           response=$(curl -s -X POST "https://slack.com/api/conversations.create" \
@@ -62,28 +66,16 @@ jobs:
           if [ "$ok" == "true" ]; then
             echo "Channel '$CHANNEL_NAME' created successfully."
             channel_id=$(echo $response | jq -r '.channel.id')
+            echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_ACTION
             echo "SLACK_CHANNEL_URL="https://slack.com/app_redirect?channel=$channel_id" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
             echo "Error creating channel: $error"
+            echo "SLACK_ERROR=$error" >> $GITHUB_OUPUT
+            exit 1
           fi
 
-          # response=$(curl -s -X POST "https://slack.com/api/conversations.create"             -H "Authorization: Bearer $SLACK_TOKEN"             -H "Content-Type: application/json"             --data "{\"name\": \"incident-${{ fromJson(github.event.inputs.port_payload).event.diff.after.identifier }}\",\"is_private\": false }")
-          # echo "API Response: $response"
-          # if [[ "$(echo $response | jq -r '.ok')" == "true" ]]; then
-          #   channel_id=$(echo $response | jq -r '.channel.id')
-          #   echo "Channel ID: $channel_id"
-          #   echo "CHANNEL_ID=$channel_id" >> $GITHUB_ENV
-          # else
-          #   echo "Failed to create Slack channel. Channel ID is null."
-          #   error=$(echo $response | jq -r '.error')
-          #   error_message="${error//_/ }"
-          #   echo "Error: $error_message"
-          #   echo "CREATE_CHANNEL_ERROR=$error_message" >> $GITHUB_ENV
-          #   exit 1
-          # fi
-
-      - name: Log If Create Channel Request Fails
+      - name: Log failed Slack channel creation
         if: failure()
         uses: port-labs/port-github-action@v1
         with:
@@ -92,9 +84,9 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          logMessage: "Failed to create slack channel: ${{ env.CREATE_CHANNEL_ERROR }} ❌"
+          logMessage: "Failed to create slack channel: ${{ steps.create-slack-channel.outputs.SLACK_ERROR }} ❌"
 
-      - name: Log If Create Channel Request is Successful
+      - name: Log successful Slack channel creation
         if: success()
         uses: port-labs/port-github-action@v1
         with:
@@ -103,25 +95,56 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          logMessage: "Channel created successfully, channel Id: ${{ env.CHANNEL_ID }} ✅"
+          logMessage: |
+            Channel created successfully - ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_URL }} ✅
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+            Adding relevant users to the slack channel...
 
       - name: Add Members to Slack Channel
         id: add_members
         if: success()
         env:
           SLACK_TOKEN: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
-          CHANNEL_ID: ${{ env.CHANNEL_ID }}
+          CHANNEL_ID: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           CLIENT_ID: ${{ secrets.PORT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.PORT_CLIENT_SECRET }}
+          CHANNEL_NAME: incident-${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          MEMBER_EMAILS: "['matar@getport.io', 'zohar@getport.io', 'bogu@getport.io']"
+          MEMBER_EMAILS: "('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')"
         run: |
-          cd slack
-          chmod +x add-members-to-channel.sh
-          bash add-members-to-channel.sh "$SLACK_TOKEN" "$CHANNEL_ID" "$CLIENT_ID" "$CLIENT_SECRET" "$RUN_ID" "$MEMBER_EMAILS"
+          for MEMBER in "${MEMBER_EMAILS[@]}"; do
+            add_user_response=$(curl -s -X POST "https://slack.com/api/conversations.invite" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{\"channel\":\"$CHANNEL_ID\", \"users\":\"$MEMBER\"}")
+            
+            user_ok=$(echo $add_user_response | jq -r '.ok')
+            if [ "$user_ok" == "true" ]; then
+                echo "User '$user_id' added to channel '$CHANNEL_NAME'."
+            else
+                user_error=$(echo $add_user_response | jq -r '.error')
+                echo "Error adding user '$user_id' to channel: $user_error"
+                exit 1
+            fi
+          done
+
+      - name: Send Slack Message
+        uses: archive/github-actions-slack@v2.0.0
+        id: send-message
+
+        with:
+          slack-function: send-message
+          slack-bot-user-oauth-access-token: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
+          slack-channel: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
+          slack-text: | 
+            ❗️ New Incident created - ${{ env.PD_INCIDENT_TITLE }}
+            *  Urgency -
+            * <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
+            * <${{ steps.create-github-issue.outputs.url }}|Url to GitHub Issue>
+            
+            The affected service is <service name> with hyper link
+            Upstream services that can be affected: 
+            <list of upstream services with hyperlink as bonus> 
 
       - name: Log Successful Action
         if: success()
@@ -132,4 +155,9 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          logMessage: "Successfully opened slack channel: ${{ env.CHANNEL_ID }} ✅"
+          logMessage: |
+            Added relevant users to the Slack channel ✅
+
+            Successfully opened slack channel: ${{ env.CHANNEL_ID }} ✅
+
+            Done reporting a handling the new incident
