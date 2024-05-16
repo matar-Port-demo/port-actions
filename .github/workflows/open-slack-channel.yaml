@@ -18,7 +18,6 @@ jobs:
       PD_INCIDENT_ID: ${{ fromJson(inputs.port_payload).event.diff.after.identifier }}
       PD_INCIDENT_URL: ${{ fromJson(inputs.port_payload).event.diff.after.properties.url }}
       PD_INCIDENT_TITLE: ${{ fromJson(inputs.port_payload).event.diff.after.title }}
-
       PORT_INCIDENT_URL: https://app.getport.io/pagerdutyIncidentEntity?identifier=${{ fromJson(inputs.port_payload).event.diff.after.identifier }}
 
 
@@ -71,7 +70,7 @@ jobs:
             echo "Channel '$CHANNEL_NAME' created successfully."
             channel_id=$(echo $response | jq -r '.channel.id')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_ACTION
-            echo "SLACK_CHANNEL_URL="https://slack.com/app_redirect?channel=$channel_id" >> GITHUB_OUTPUT
+            echo "SLACK_CHANNEL_URL=https://slack.com/app_redirect?channel=$channel_id" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
             echo "Error creating channel: $error"
