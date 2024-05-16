@@ -142,6 +142,31 @@ jobs:
             fi
           done
 
+      - name: Get incident's related service
+        id: get-incidient-service
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: SEARCH
+          query: |
+            {
+              "rules": [
+                {
+                    "operator": "=",
+                    "property": "$blueprint",
+                    "value": "service"
+                },
+                {
+                    "operator": "relatedTo",
+                    "blueprint": "pagerdutyService",
+                    "value": "${{ fromJson(inputs.port_payload).event.diff.after.relations.pagerdutyService }}"
+                }
+              ],
+              "combinator": "and"
+            }
+
       - name: Send Slack Message
         uses: archive/github-actions-slack@v2.9.0
         id: send-message
@@ -155,9 +180,9 @@ jobs:
               * <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
               * <${{ steps.create-github-issue.outputs.url }}|GitHub Issue>
             
-            The affected service is <service name> with hyper link
+            The affected service is <https://app.getport.io/serviceEntity?identifier=${{ steps.get-incidient-service.outputs.entities[0].identifier }}|${{ steps.get-incidient-service.outputs.entities[0].title }}>
             Upstream services that can be affected: 
-            <list of upstream services with hyperlink as bonus> 
+              ${{ steps.get-incidient-service.outputs.entities[0].relations.dependencies }}
 
       - name: Log Successful Action
         if: success()
