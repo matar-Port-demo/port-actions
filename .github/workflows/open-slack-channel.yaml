@@ -70,7 +70,8 @@ jobs:
             echo "Channel '$CHANNEL_NAME' created successfully."
             channel_id=$(echo $response | jq -r '.channel.id')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
-            echo "SLACK_CHANNEL_URL=https://slack.com/app_redirect?channel=$channel_id" >> GITHUB_OUTPUT
+            slack_channel_url="https://slack.com/app_redirect?channel=$channel_id"
+            echo "SLACK_CHANNEL_URL=$slack_channel_url" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
             echo "Error creating channel: $error"
@@ -173,6 +174,4 @@ jobs:
           logMessage: |
             Added relevant users to the Slack channel ✅
 
-            Successfully opened slack channel: ${{ env.CHANNEL_ID }} ✅
-
-            Done reporting a handling the new incident
+            Done handling the new incident
