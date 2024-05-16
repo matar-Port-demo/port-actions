@@ -71,6 +71,7 @@ jobs:
             channel_id=$(echo $response | jq -r '.channel.id')
             echo "SLACK_CHANNEL_ID=$channel_id" >> $GITHUB_OUTPUT
             slack_channel_url="https://slack.com/app_redirect?channel=$channel_id"
+            echo $slack_channel_url
             echo "SLACK_CHANNEL_URL=$slack_channel_url" >> GITHUB_OUTPUT
           else
             error=$(echo $response | jq -r '.error')
