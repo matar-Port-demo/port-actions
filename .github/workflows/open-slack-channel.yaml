@@ -161,7 +161,7 @@ jobs:
                 {
                     "operator": "relatedTo",
                     "blueprint": "pagerdutyService",
-                    "value": ${{ fromJson(inputs.port_payload).event.diff.after.relations.pagerdutyService }}
+                    "value": "${{ fromJson(inputs.port_payload).event.diff.after.relations.pagerdutyService }}"
                 }
               ],
               "combinator": "and"
