@@ -175,7 +175,7 @@ jobs:
           echo "SERVICE_IDENTIFIER=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq '.[0].identifier')" >> $GITHUB_OUTPUT
           echo '${{ steps.get-incidient-service.outputs.entities }}' | jq '.[0].title'
           echo "SERVICE_TITLE=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq '.[0].title')" >> $GITHUB_OUTPUT
-          service_deps=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq '.[0].relations.dependencies | map(" * <https://app.getport.io/serviceEntity?identifier=\(.)|\(.)>") | join("\n")')
+          service_deps=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].relations.dependencies | map(" * <https://app.getport.io/serviceEntity?identifier=\(.)|\(.)>") | join("\n")')
           echo "DEPS_WITH_HYPERLINK=$service_deps" >> $GITHUB_OUTPUT
 
       - name: Send Slack Message
