@@ -166,10 +166,7 @@ jobs:
               ],
               "combinator": "and"
             }
-
-      - run: |
-          echo "${{ steps.get-incidient-service.outputs.entities }}"
-
+            
       - name: Send Slack Message
         uses: archive/github-actions-slack@v2.9.0
         env:
