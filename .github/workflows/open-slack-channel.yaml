@@ -49,7 +49,6 @@ jobs:
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: | 
             Github issue created successfully - ${{ steps.create-github-issue.outputs.url }}
-
             Creating a new Slack channel for this incident...
 
       - name: Create Slack Channel
@@ -102,7 +101,6 @@ jobs:
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: |
             Channel created successfully - ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_URL }} ✅
-
             Adding relevant users to the slack channel...
 
       - name: Add Members to Slack Channel
@@ -174,5 +172,4 @@ jobs:
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           logMessage: |
             Added relevant users to the Slack channel ✅
-
-            Done handling the new incident
+            Done handling the new incident 💪🏻
