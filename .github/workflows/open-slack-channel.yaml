@@ -72,7 +72,7 @@ jobs:
           else
             error=$(echo $response | jq -r '.error')
             echo "Error creating channel: $error"
-            echo "SLACK_ERROR=$error" >> $GITHUB_OUPUT
+            echo "SLACK_ERROR=$error" >> $GITHUB_OUTPUT
             exit 1
           fi
 
@@ -170,9 +170,9 @@ jobs:
       - name: Extract realted service
         id: get-service-info
         run: |
-          echo "SERVICE_IDENTIFIER=${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].identifier" >> $GITHUB_OUTPUT
-          echo "SERVICE_TITLE=${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].title" >> $GITHUB_OUTPUT
-          service_deps=$(echo "${{ steps.get-incidient-service.outputs.entities[0].relations.dependencies }}" | jq 'map("<https://app.getport.io/serviceEntity?identifier=(.)|\(.)>") | join(", ")')
+          echo "SERVICE_IDENTIFIER=$(echo ${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].identifier)" >> $GITHUB_OUTPUT
+          echo "SERVICE_TITLE=$(echo ${{ steps.get-incidient-service.outputs.entities[0].identifier }} | jq .[0].title)" >> $GITHUB_OUTPUT
+          service_deps=$(echo ${{ steps.get-incidient-service.outputs.entities[0].relations.dependencies }} | jq 'map("<https://app.getport.io/serviceEntity?identifier=(.)|\(.)>") | join(", ")')
           echo "DEPS_WITH_HYPERLINK=$service_deps" >> $GITHUB_OUTPUT
 
       - name: Send Slack Message
