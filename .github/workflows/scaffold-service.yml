@@ -65,7 +65,7 @@ jobs:
                 "https://prometheus.com",
                 "https://datadog.com"
               ],
-              "tier": "Tier 1",
+              "tier": "Tier 4",
               "nodejs_exception": false
             }
           relations: |
