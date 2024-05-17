@@ -210,9 +210,12 @@ jobs:
           blueprint: pagerdutyIncident
           properties: |
             {
-              "service": "${{ steps.get-service-info.outputs.SERVICE_IDENTIFIER }}",
               "slack_channel": "${{ env.SLACK_CHANNEL_URL }}",
               "github_issue": "${{ steps.create-github-issue.outputs.url }}"
+            }
+          relations: | 
+            {
+              "service": "${{ steps.get-service-info.outputs.SERVICE_IDENTIFIER }}"
             }
 
       - name: Log Successful Action
