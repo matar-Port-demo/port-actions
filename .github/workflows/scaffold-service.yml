@@ -1,0 +1,125 @@
+name: Scaffold a new service
+
+on:
+  workflow_dispatch:
+    inputs:
+      port_payload:
+        description: "Port's payload, including details for who triggered the action and general context (blueprint, run ID, etc...)."
+        required: true
+
+jobs:
+  scaffold-service:
+    runs-on: ubuntu-latest
+    env:
+      SERVICE_NAME: ${{ fromJson(inputs.port_payload).name }}
+      SERVICE_LANG: ${{ fromJson(inputs.port_payload).language }}
+      SERVICE_TEAM: ${{ fromJson(inputs.port_payload).language }}
+      SERVICE_SYSTEM: ${{ fromJson(inputs.port_payload).system.identifier }}
+      SERVICE_SDK: ${{ fromJson(inputs.port_payload).SDK }}
+      SERVICE_REPO: ${{ fromJson(inputs.port_payload).repository }}
+      SETUP_DB: ${{ fromJson(inputs.port_payload).setup_database }}
+      DB_NAME: ${{ fromJson(inputs.port_payload).db }}
+      TRIGGERED_BY: ${{ fromJson(inputs.port_payload).user }}
+      RUN_ID: ${{ fromJson(inputs.port_payload).run.id }}
+
+    steps:
+      - name: Log Scaffolding
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{ env.RUN_ID }}
+          logMessage: "Scaffolding a new service repository..."
+
+      - name: Create service identifier
+        run: |
+          echo "SERVICE_ID=$(echo ${{ env.SERVICE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      
+      - name: Create Port service
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          identifier: ${{ env.SERVICE_ID }}
+          team: ${{ env.SERVICE_TEAM }}
+          title: ${{ env.SERVICE_NAME }}
+          runId: ${{ env.RUN_ID }}
+          blueprint: service
+          properties: |
+            {
+              "locked_in_test": false,
+              "lifecycle": "Production",
+              "readme": "# ${{ env.SERVICE_NAME }} Service\n\n## Overview\n\nThis project is licensed under the MIT License.",
+              "url": "https://github.com/myorg/${{ env.SERVICE_ID}}",
+              "language": "${{ env.SERVICE_LANG }}",
+              "required_approvals": 2,
+              "on_call": "${{ env.TRIGGERED_BY }}",
+              "locked_in_prod": false,
+              "require_code_owner_review": true,
+              "runbooks": [
+                "https://runbook.com/runbook"
+              ]
+              "monitor_dashboards": [
+                "https://grafana.com",
+                "https://prometheus.com",
+                "https://datadog.com"
+              ],
+              "tier": "Tier 1",
+              "nodejs_exception": false
+            }
+          relations: |
+            {
+               "system": "${{ env.SERVICE_SYSTEM }}",
+               "code_owners": ["alice_johnson"]
+            }
+
+      - name: Log DB creation
+        if: env.SETUP_DB
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_payload).run.id }}
+          logMessage: |
+            DB Requested. Setting up DB '${{ env.DB_NAME }}'...
+
+      - name: Create Cosmos DB
+        if: env.SETUP_DB
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          identifier: ${{ env.DB_NAME }}_australia_east${{ env.DB_NAME }}
+          title: ${{ env.DB_NAME }}
+          blueprint: cloudResource
+          runId: ${{ env.RUN_ID }}
+          properties: |
+            {
+              "provider": "Azure",
+              "type": "Cosmos DB",
+              "link": "https://azure.com",
+              "status": "RUNNING",
+              "region": "australia-east"
+            }
+          relations: |
+            {
+              "running_services": [
+                "${{ env.SERVICE_ID }}"
+              ]
+            }
+          
+      - name: Log DB creation
+        if: env.SETUP_DB
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_payload).run.id }}
+          logMessage: |
+            DB Creation complete. Finished scaffolding serivce '${{ env.SERVICE_NAME }}'🚀
