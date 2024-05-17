@@ -54,6 +54,7 @@ jobs:
               "url": "https://github.com/myorg/${{ env.SERVICE_ID}}",
               "language": "${{ env.SERVICE_LANG }}",
               "required_approvals": 2,
+              "type": "Backend"
               "on_call": "${{ env.TRIGGERED_BY }}",
               "locked_in_prod": false,
               "require_code_owner_review": true,
@@ -71,7 +72,8 @@ jobs:
           relations: |
             {
                "system": "${{ env.SERVICE_SYSTEM }}",
-               "code_owners": ["alice_johnson"]
+               "code_owners": ["alice_johnson"], 
+               "pager_duty_service": "PKNE8QY"
             }
 
       - name: Log DB creation
