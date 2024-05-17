@@ -89,7 +89,7 @@ jobs:
           properties: |
             {
               "slack_channel": ${{ env.SLACK_CHANNEL_URL }},
-
+              "github_issue": ${{ steps.create-github-issue.outputs.url }}
             }
           
       - name: Log failed Slack channel creation
