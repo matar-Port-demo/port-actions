@@ -192,10 +192,13 @@ jobs:
           slack-text: | 
             :rotating_light: New Incident reported - ${{ env.PD_INCIDENT_TITLE }} :rotating_light:
               Urgency: ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}
-              For more details, click <${{ env.PORT_INCIDENT_URL }}|here>!
+              Service: <${{ env.SVC_ENTITY_URL }}|${{ env.SVC_ENTITY_TITLE }}>
+              Manage incident :point_right::skin-tone-4: <${{ env.PORT_INCIDENT_URL }}|here>!
             
-            The affected service is <${{ env.SVC_ENTITY_URL }}|${{ env.SVC_ENTITY_TITLE }}>
-            Upstream services that can be affected: ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
+              Note there are services who might be affected: ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
+              Service owners were added to this channel.
+
+              Please use this Slack channel to report any updates, ideas, or root-cause ideas related to this incident :thread:
 
       - name: Add Slack channel to Pagerduty incident
         uses: port-labs/port-github-action@v1
