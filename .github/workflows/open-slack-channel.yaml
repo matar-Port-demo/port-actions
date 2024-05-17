@@ -176,7 +176,7 @@ jobs:
           echo "SERVICE_IDENTIFIER=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].identifier')" >> $GITHUB_OUTPUT
           echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].title'
           echo "SERVICE_TITLE=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].title')" >> $GITHUB_OUTPUT
-          service_deps=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].relations.dependencies | map(" - <https://app.getport.io/serviceEntity?identifier=\(.)|\(.)>") | join("\n")')
+          service_deps=$(echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].relations.dependencies | map("<https://app.getport.io/serviceEntity?identifier=\(.)|\(.)>") | join(", ")')
           echo "DEPS_WITH_HYPERLINK=$service_deps" >> $GITHUB_OUTPUT
 
       - name: Send Slack Message
@@ -191,13 +191,11 @@ jobs:
           slack-channel: ${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
           slack-text: | 
             :rotating_light: New Incident reported - ${{ env.PD_INCIDENT_TITLE }} :rotating_light:
-              - Urgency: ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}
-              - <${{ env.PD_INCIDENT_URL }}|Pagerduty incident>
-              - <${{ steps.create-github-issue.outputs.url }}|GitHub Issue>
+              Urgency: ${{ fromJson(inputs.port_payload).event.diff.after.properties.urgency }}
+              For more details, click <${{ env.PORT_INCIDENT_URL }}|here>!
             
             The affected service is <${{ env.SVC_ENTITY_URL }}|${{ env.SVC_ENTITY_TITLE }}>
-            Upstream services that can be affected: 
-              ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
+            Upstream services that can be affected: ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
 
       - name: Add Slack channel to Pagerduty incident
         uses: port-labs/port-github-action@v1
