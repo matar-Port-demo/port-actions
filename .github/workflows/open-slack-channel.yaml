@@ -77,6 +77,21 @@ jobs:
             exit 1
           fi
 
+      - name: Add Slack channel to Pagerduty incident
+        uses: port-labs/port-github-action@v1
+        env:
+          SLACK_CHANNEL_URL: https://slack.com/app_redirect?channel=${{ steps.create-slack-channel.outputs.SLACK_CHANNEL_ID }}
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          identifier: ${{ env.PD_INCIDENT_ID }}
+          blueprint: pagerdutyIncident
+          properties: |
+            {
+              "slack_channel": ${{ env.SLACK_CHANNEL_URL }},
+
+            }
+          
       - name: Log failed Slack channel creation
         if: failure()
         uses: port-labs/port-github-action@v1
