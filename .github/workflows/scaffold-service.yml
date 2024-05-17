@@ -43,7 +43,6 @@ jobs:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           identifier: ${{ env.SERVICE_ID }}
-          team: ${{ env.SERVICE_TEAM }}
           title: ${{ env.SERVICE_NAME }}
           runId: ${{ env.RUN_ID }}
           blueprint: service
