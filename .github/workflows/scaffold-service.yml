@@ -60,7 +60,7 @@ jobs:
               "require_code_owner_review": true,
               "runbooks": [
                 "https://runbook.com/runbook"
-              ]
+              ],
               "monitor_dashboards": [
                 "https://grafana.com",
                 "https://prometheus.com",
