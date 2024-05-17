@@ -195,7 +195,7 @@ jobs:
               Service: <${{ env.SVC_ENTITY_URL }}|${{ env.SVC_ENTITY_TITLE }}>
               Manage incident :point_right::skin-tone-4: <${{ env.PORT_INCIDENT_URL }}|here>!
             
-              Note there are services who might be affected: ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
+              Note that there are services which might be affected: ${{ steps.get-service-info.outputs.DEPS_WITH_HYPERLINK }}
               Service owners were added to this channel.
 
               Please use this Slack channel to report any updates, ideas, or root-cause ideas related to this incident :thread:
