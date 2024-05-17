@@ -75,7 +75,7 @@ jobs:
             }
 
       - name: Log DB creation
-        if: env.SETUP_DB
+        if: env.SETUP_DB == 'true'
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -87,7 +87,7 @@ jobs:
             DB Requested. Setting up DB '${{ env.DB_NAME }}'...
 
       - name: Create Cosmos DB
-        if: env.SETUP_DB
+        if: env.SETUP_DB == 'true'
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -113,7 +113,7 @@ jobs:
             }
           
       - name: Log DB creation
-        if: env.SETUP_DB
+        if: env.SETUP_DB == 'true'
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
