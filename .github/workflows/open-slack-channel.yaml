@@ -115,8 +115,8 @@ jobs:
           RUN_ID: ${{ fromJson(github.event.inputs.port_payload).run.id }}
           # MEMBER_EMAILS: "('matar@getport.io', 'zohar@getport.io', 'bogu@getport.io', 'matanheled@getport.io')"
         run: |
-          # members=('matar@getport.io' 'zohar@getport.io' 'bogu@getport.io' 'matanheled@getport.io')
-          members=('matar@getport.io' 'matanheled@getport.io')
+          members=('matar@getport.io' 'zohar@getport.io' 'matanheled@getport.io')
+          # members=('matar@getport.io' 'matanheled@getport.io')
           for member in "${members[@]}"; do
             user_response=$(curl -s -X GET "https://slack.com/api/users.lookupByEmail?email=$member" \
               -H "Authorization: Bearer $SLACK_TOKEN")
