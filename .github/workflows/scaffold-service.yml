@@ -122,4 +122,15 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ fromJson(inputs.port_payload).run.id }}
           logMessage: |
-            DB Creation complete. Finished scaffolding serivce '${{ env.SERVICE_NAME }}'🚀
+            DB Creation complete!
+
+      - name: Log DB creation
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_payload).run.id }}
+          logMessage: |
+            Finished scaffolding serivce '${{ env.SERVICE_NAME }}'🚀
