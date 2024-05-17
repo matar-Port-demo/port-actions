@@ -32,7 +32,7 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ fromJson(github.event.inputs.port_payload).run.id }}
-          logMessage: "Creating a new Github issue for this incident..."
+          logMessage: "Creating a new Github issue for Pagerduty incident '${{ env.PD_INCIDENT_ID }}'..."
 
       - uses: JasonEtco/create-an-issue@v2
         id: create-github-issue
