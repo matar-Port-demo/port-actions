@@ -124,7 +124,7 @@ jobs:
           logMessage: |
             DB Creation complete!
 
-      - name: Log DB creation
+      - name: Log Scaffolding successfull
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
