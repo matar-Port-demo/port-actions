@@ -108,7 +108,8 @@ jobs:
             {
               "running_services": [
                 "${{ env.SERVICE_ID }}"
-              ]
+              ],
+              "azure_subscription": "east_us_production"
             }
           
       - name: Log DB creation
