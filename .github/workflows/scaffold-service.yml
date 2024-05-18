@@ -73,7 +73,7 @@ jobs:
             {
                "system": "${{ env.SERVICE_SYSTEM }}",
                "code_owners": ["alice_johnson"], 
-               "pager_duty_service": "PKNE8QY"
+               "pager_duty_service": "PKNE8QX"
             }
 
       - name: Log DB creation
