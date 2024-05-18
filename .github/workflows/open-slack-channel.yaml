@@ -217,7 +217,7 @@ jobs:
           relations: | 
             {
               "service": "${{ steps.get-service-info.outputs.SERVICE_IDENTIFIER }}",
-              "dependent_services": "['order', 'promotion', 'wish-list', 'authentication', 'reporting']"
+              "dependent_services": ["order", "promotion", "wish-list", "authentication", "reporting"]
             }
 
       - name: Log Successful Action
