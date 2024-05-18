@@ -55,6 +55,7 @@ jobs:
               "language": "${{ env.SERVICE_LANG }}",
               "required_approvals": 2,
               "type": "Backend",
+              "freshness": 0,
               "on_call": "${{ env.TRIGGERED_BY }}",
               "locked_in_prod": false,
               "require_code_owner_review": true,
