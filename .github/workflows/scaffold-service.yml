@@ -50,7 +50,6 @@ jobs:
             {
               "locked_in_test": false,
               "lifecycle": "Production",
-              "readme": "# ${{ env.SERVICE_NAME }} Service\n\n## Overview\n\nThis project is licensed under the MIT License.",
               "url": "https://github.com/myorg/${{ env.SERVICE_ID}}",
               "language": "${{ env.SERVICE_LANG }}",
               "required_approvals": 2,
@@ -59,7 +58,7 @@ jobs:
               "on_call": "${{ env.TRIGGERED_BY }}",
               "locked_in_prod": false,
               "require_code_owner_review": true,
-              "readme": "# Catalog Service\n\n## Overview\nThis service manages all product catalog-related operations, including creating, updating, and retrieving catalog details. It is currently in production.\n\n## Endpoints\n- **GET /catalogs**: Retrieve a list of all catalogs.\n- **POST /catalogs**: Create a new catalog.\n- **GET /catalogs/{id}**: Retrieve a catalog by ID.\n- **PUT /catalogs/{id}**: Update an existing catalog.\n- **DELETE /catalogs/{id}**: Delete a catalog by ID.\n\n## Development\nThis service is developed using NodeJS and follows RESTful principles.\n\n## Contribution\nPlease read the [CONTRIBUTING.md](https://github.com/myorg/catalog/CONTRIBUTING.md) before contributing to this repository.\n\n## License\nThis project is licensed under the MIT License.",
+              "readme": "# ${{ env.SERVICE_NAME }} Service\n\n## Overview\nThis service manages all product catalog-related operations, including creating, updating, and retrieving catalog details. It is currently in production.\n\n## Endpoints\n- **GET /catalogs**: Retrieve a list of all catalogs.\n- **POST /catalogs**: Create a new catalog.\n- **GET /catalogs/{id}**: Retrieve a catalog by ID.\n- **PUT /catalogs/{id}**: Update an existing catalog.\n- **DELETE /catalogs/{id}**: Delete a catalog by ID.\n\n## Development\nThis service is developed using NodeJS and follows RESTful principles.\n\n## Contribution\nPlease read the [CONTRIBUTING.md](https://github.com/myorg/catalog/CONTRIBUTING.md) before contributing to this repository.\n\n## License\nThis project is licensed under the MIT License.",
               "runbooks": [
                 "https://runbook.com/runbook"
               ],
