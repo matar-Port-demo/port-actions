@@ -91,4 +91,49 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{fromJson(inputs.port_payload).run_id}}
-          logMessage: "Entity upserting was successful ✅"
+          logMessage: |
+            Entity was updated successfully ✅
+
+            Closing the Github issue...
+
+      - name: Close Issue
+        uses: peter-evans/close-issue@v3
+        with:
+          close-reason: Resolved
+          issue-number: ${{fromJson(inputs.port_payload).gh_issue_id}}
+          comment: Issue was resolved. Closing ✅
+
+      - name: Log before slack message
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_payload).run_id}}
+          logMessage: |
+            Github issue closed successfully ✅
+
+            Updating the Slack channel that the incident was resolved...
+
+      - name: Send Slack Message
+        uses: archive/github-actions-slack@v2.9.0
+        id: send-message
+        with:
+          slack-function: send-message
+          slack-bot-user-oauth-access-token: ${{ secrets.BOT_USER_OAUTH_TOKEN }}
+          slack-channel: ${{fromJson(inputs.port_payload).slack_channel_id}}
+          slack-text: | 
+            🚀 Incident was resolved 🚀
+            Good job everyone, thank you for your help 💪🏻
+
+      - name: Finished handling resolution log
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          runId: ${{fromJson(inputs.port_payload).run_id}}
+          logMessage: |
+            Incident resolved successfully 💪🏻
