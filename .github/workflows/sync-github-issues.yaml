@@ -15,10 +15,10 @@ jobs:
                 operation_kind: issue_handler
                 port_client_id: ${{ secrets.PORT_CLIENT_ID }}
                 port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
-                blueprint: app
-                scorecard: productionReadiness
-                filter_rule: '{"property": "$team","operator": "containsAny","value": ["AAA"]}'
-                github_api_url: ${{ github.api_url }} # https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
+                blueprint: service
+                scorecard: security
+                filter_rule: ""
+                github_api_url: https://api.github.com # https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
                 github_token: ${{ github.token }} # https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
                 github_repository: ${{ github.repository }} # Example: octocat/Hello-World, https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
                 target_kind: github
