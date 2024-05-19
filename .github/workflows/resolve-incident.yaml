@@ -47,7 +47,7 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{fromJson(inputs.port_payload).run_id}}
-          logMessage: "Getting incident object from response received ..."
+          logMessage: "Getting incident object from response received..."
 
       - name: Log Before Upserting Entity
         uses: port-labs/port-github-action@v1
@@ -57,7 +57,7 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{fromJson(inputs.port_payload).run_id}}
-          logMessage: "Reporting the updated incident back to port ..."
+          logMessage: "Reporting the updated incident back to Port...🚀"
 
       - name: UPSERT Entity
         uses: port-labs/port-github-action@v1
@@ -75,7 +75,6 @@ jobs:
               "created_at": "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].created_at }}",
               "updated_at": "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].updated_at }}"
             }
-          relations: "${{ toJson(fromJson(inputs.port_payload).relations) }}"
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
