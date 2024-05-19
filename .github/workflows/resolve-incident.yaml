@@ -2,7 +2,7 @@ name: Resolve Incident In PagerDuty
 on:
   workflow_dispatch:
     inputs:
-      port_context:
+      port_payload:
         required: true
         description: includes blueprint, run ID, and entity identifier from Port.
 
@@ -18,7 +18,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_context).run_id}}
+          runId: ${{fromJson(inputs.port_payload).run_id}}
           logMessage: "About to make a request to pagerduty..."
 
       - name: Request to Resolve Incident
@@ -32,7 +32,7 @@ jobs:
               {
                 "incidents": [
                   {
-                    "id": "${{fromJson(inputs.port_context).entity.identifier}}",
+                    "id": "${{fromJson(inputs.port_payload).entity.identifier}}",
                     "type": "incident_reference",
                     "status": "resolved"
                   }
@@ -46,7 +46,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_context).run_id}}
+          runId: ${{fromJson(inputs.port_payload).run_id}}
           logMessage: "Getting incident object from response received ..."
 
       - name: Log Before Upserting Entity
@@ -56,7 +56,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_context).run_id}}
+          runId: ${{fromJson(inputs.port_payload).run_id}}
           logMessage: "Reporting the updated incident back to port ..."
 
       - name: UPSERT Entity
@@ -64,7 +64,7 @@ jobs:
         with:
           identifier: "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].id }}"
           title: "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].title }}"
-          blueprint: ${{fromJson(inputs.port_context).blueprint}}
+          blueprint: ${{fromJson(inputs.port_payload).blueprint}}
           properties: |-
             {
               "status": "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].status }}",
@@ -75,12 +75,12 @@ jobs:
               "created_at": "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].created_at }}",
               "updated_at": "${{ fromJson(steps.resolve_incident.outputs.response).incidents[0].updated_at }}"
             }
-          relations: "${{ toJson(fromJson(inputs.port_context).relations) }}"
+          relations: "${{ toJson(fromJson(inputs.port_payload).relations) }}"
           clientId: ${{ secrets.PORT_CLIENT_ID }}
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: UPSERT
-          runId: ${{fromJson(inputs.port_context).run_id}}
+          runId: ${{fromJson(inputs.port_payload).run_id}}
 
       - name: Log After Upserting Entity
         uses: port-labs/port-github-action@v1
@@ -89,5 +89,5 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_context).run_id}}
+          runId: ${{fromJson(inputs.port_payload).run_id}}
           logMessage: "Entity upserting was successful ✅"
