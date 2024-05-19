@@ -212,7 +212,8 @@ jobs:
           properties: |
             {
               "slack_channel": "${{ env.SLACK_CHANNEL_URL }}",
-              "github_issue": "${{ steps.create-github-issue.outputs.url }}"
+              "github_issue": "${{ steps.create-github-issue.outputs.url }}",
+              "service_owner": "capov84466@huleos.com"
             }
           relations: | 
             {
