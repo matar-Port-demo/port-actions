@@ -32,7 +32,7 @@ jobs:
               {
                 "incidents": [
                   {
-                    "id": "${{fromJson(inputs.port_context).entity}}",
+                    "id": "${{fromJson(inputs.port_context).entity.identifier}}",
                     "type": "incident_reference",
                     "status": "resolved"
                   }
