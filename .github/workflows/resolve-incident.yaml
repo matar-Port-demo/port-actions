@@ -6,6 +6,10 @@ on:
         required: true
         description: includes blueprint, run ID, and entity identifier from Port.
 
+permissions:
+  contents: read
+  issues: write 
+
 jobs:
   resolve_incident:
     runs-on: ubuntu-latest
@@ -100,6 +104,7 @@ jobs:
         uses: peter-evans/close-issue@v3
         with:
           close-reason: Resolved
+          token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{fromJson(inputs.port_payload).gh_issue_id}}
           comment: Issue was resolved. Closing ✅
 
