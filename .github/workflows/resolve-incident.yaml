@@ -38,6 +38,8 @@ jobs:
                   }
                 ]
               }
+      - run: |
+          echo '${{ fromJson(steps.resolve_incident.outputs.response) }}'
 
       - name: Log Before Processing Incident Response
         uses: port-labs/port-github-action@v1
