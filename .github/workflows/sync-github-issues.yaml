@@ -20,5 +20,5 @@ jobs:
                 filter_rule: ""
                 github_api_url: https://api.github.com # https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
                 github_token: ${{ secrets.ISSUES_TOKEN }} # https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
-                github_repository: port-actions # Example: octocat/Hello-World, https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
+                github_repository: ${{ github.repository }} # Example: octocat/Hello-World, https://docs.github.com/en/actions/learn-github-actions/variables#using-contexts-to-access-variable-values
                 target_kind: github
