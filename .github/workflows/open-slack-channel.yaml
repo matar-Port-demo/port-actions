@@ -176,7 +176,7 @@ jobs:
           echo "SERVICE_IDENTIFIER=ads" >> $GITHUB_OUTPUT
           # echo '${{ steps.get-incidient-service.outputs.entities }}' | jq -r '.[0].title'
           echo "SERVICE_TITLE=Ads" >> $GITHUB_OUTPUT
-          service_deps=$(echo 'jq -r ["order","promotion"] | map("<https://app.getport.io/serviceEntity?identifier=\(.)|\(.)>") | join(", ")')
+          service_deps=$(echo '<https://app.getport.io/serviceEntity?identifier=\("order")|\("order")>')
           echo "DEPS_WITH_HYPERLINK=$service_deps" >> $GITHUB_OUTPUT
 
       - name: Send Slack Message
