@@ -51,7 +51,7 @@ jobs:
         run: |
           service_title=$(echo '${{ steps.get-incidient-service.outputs.entity }}' | jq -r '.title')
           echo "SERVICE_TITLE=$service_title" >> $GITHUB_OUTPUT
-          echo "SERVICE_IDENTIFIER=$(echo $service_title | tr '[:upper:] ' '[:lower:]-')
+          echo "SERVICE_IDENTIFIER=$(echo $service_title | tr '[:upper:] ' '[:lower:]-')"
 
       - name: Create Github issue
         uses: dacbd/create-issue-action@main
