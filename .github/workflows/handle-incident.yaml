@@ -75,7 +75,7 @@ jobs:
           blueprint: githubIssue
           relations: |
             {
-              "service": "${{ steps.get-service-info.outputs.SERVICE_IDENTIFIER }}"
+              "service": "ads"
             }
 
       - name: Log Executing Request to Open Channel
