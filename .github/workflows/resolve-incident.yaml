@@ -13,8 +13,13 @@ permissions:
 jobs:
   resolve_incident:
     runs-on: ubuntu-latest
+    env:
+      PD_INCIDENT_ID: ${{ fromJson(inputs.port_payload).entity.identifier }}
+      PD_INCIDENT_URL: ${{ fromJson(inputs.port_payload).entity.properties.url }}
+      PD_INCIDENT_TITLE: ${{ fromJson(inputs.port_payload).entity.title }}
+      PORT_INCIDENT_URL: https://app.getport.io/pagerdutyIncidentEntity?identifier=${{ fromJson(inputs.port_payload).entity.identifier }}
+      PORT_RUN_ID: ${{fromJson(inputs.port_payload).run_id}}
     steps:
-      
       - name: Log Executing Request to Resolve Incident
         uses: port-labs/port-github-action@v1
         with:
@@ -22,8 +27,8 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
-          logMessage: "About to make a request to pagerduty..."
+          runId: ${{ env.PORT_RUN_ID }}
+          logMessage: "Resloving Pagerduty incident '${{ env.PD_INCIDENT_ID }}'..."
 
       - name: Request to Resolve Incident
         id: resolve_incident
@@ -36,7 +41,7 @@ jobs:
               {
                 "incidents": [
                   {
-                    "id": "${{fromJson(inputs.port_payload).entity.identifier}}",
+                    "id": "${{ env.PD_INCIDENT_ID}}",
                     "type": "incident_reference",
                     "status": "resolved"
                   }
@@ -52,7 +57,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
           logMessage: "Getting incident object from response received..."
 
       - name: Log Before Upserting Entity
@@ -62,7 +67,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
           logMessage: "Reporting the updated incident back to Port...🚀"
 
       - name: UPSERT Entity
@@ -85,7 +90,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: UPSERT
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
 
       - name: Log After Upserting Entity
         uses: port-labs/port-github-action@v1
@@ -94,7 +99,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
           logMessage: |
             Entity was updated successfully ✅
 
@@ -115,7 +120,7 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
           logMessage: |
             Github issue closed successfully ✅
 
@@ -130,6 +135,7 @@ jobs:
           slack-channel: ${{fromJson(inputs.port_payload).slack_channel_id}}
           slack-text: | 
             🚀 Incident was resolved 🚀
+            View incident :point_right::skin-tone-4: <${{ env.PORT_INCIDENT_URL }}|here>!
             Good job everyone, thank you for your help 💪🏻
 
       - name: Finished handling resolution log
@@ -139,6 +145,6 @@ jobs:
           clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
-          runId: ${{fromJson(inputs.port_payload).run_id}}
+          runId: ${{ env.PORT_RUN_ID }}
           logMessage: |
-            Incident resolved successfully 💪🏻
+            Incident '${{ env.PD_INCIDENT_ID }}' resolved successfully 💪🏻
