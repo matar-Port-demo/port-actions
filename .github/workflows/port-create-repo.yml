@@ -65,8 +65,8 @@ jobs:
         id: summarize
         env:
           GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
-          REPO_NAME: ${{ github.event.repository.name }}
-          OWNER: ${{ github.repository_owner }}
+          REPO_NAME: "port-actions"
+          OWNER: "matar-Port-demo"
           RUN_ID: ${{ github.run_id }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
