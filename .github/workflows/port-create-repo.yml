@@ -33,9 +33,10 @@ jobs:
       PORT_RUN_ID: ${{ fromJson(inputs.port_context).runId }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Create a log message (Start)
+      - name: Log start of scaffolding
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -43,44 +44,57 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ env.PORT_RUN_ID }}
-          logMessage: "Starting scaffolding of service and repository: ${{ inputs.service_name }}"
+          logMessage: "🚀 Starting scaffolding of service and repository: `${{ inputs.service_name }}`"
 
-      - name: Create GitHub Repository (Capture logs)
+      - name: Create GitHub Repository
         id: scaffold
-        run: |
-          {
-            echo "Running scaffolding for ${{ inputs.service_name }}..."
-            port-labs/cookiecutter-gha@v1.1.1 portClientId="${{ secrets.PORT_CLIENT_ID }}" \
-              portClientSecret="${{ secrets.PORT_CLIENT_SECRET }}" \
-              token="${{ secrets.ORG_ADMIN_TOKEN }}" \
-              portRunId="${{ env.PORT_RUN_ID }}" \
-              repositoryName="${{ inputs.service_name }}" \
-              portUserInputs="{\"cookiecutter_app_name\": \"${{ inputs.service_name }}\"}" \
-              cookiecutterTemplate=https://github.com/lacion/cookiecutter-golang \
-              blueprintIdentifier=githubRepository \
-              organizationName=${{ env.ORG_NAME }}
-          } 2>&1 | tee scaffold.log
+        uses: port-labs/cookiecutter-gha@v1.1.1
+        with:
+          portClientId: ${{ secrets.PORT_CLIENT_ID }}
+          portClientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          token: ${{ secrets.ORG_ADMIN_TOKEN }}
+          portRunId: ${{ env.PORT_RUN_ID }}
+          repositoryName: ${{ inputs.service_name }}
+          portUserInputs: '{"cookiecutter_app_name": "${{ inputs.service_name }}" }'
+          cookiecutterTemplate: https://github.com/lacion/cookiecutter-golang
+          blueprintIdentifier: "githubRepository"
+          organizationName: ${{ env.ORG_NAME }}
         continue-on-error: true
 
-      - name: Summarize logs with OpenAI
+      - name: Summarize GitHub logs using OpenAI
         id: summarize
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          LOG_CONTENT=$(jq -Rs . < scaffold.log)
+          echo "📦 Downloading logs for this run..."
+          curl -s -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/logs" \
+            -L -o logs.zip
+
+          unzip logs.zip -d logs
+          cat logs/* > full_log.txt
+
+          echo "💡 Sending logs to OpenAI for summarization..."
+          LOG=$(jq -Rs . < full_log.txt)
           SUMMARY=$(curl -s https://api.openai.com/v1/chat/completions \
-            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
             -H "Content-Type: application/json" \
             -d "{
               \"model\": \"gpt-4\",
               \"messages\": [
-                {\"role\": \"system\", \"content\": \"You are summarizing GitHub Action logs for a developer platform. Highlight what was attempted, and clearly call out errors if any. This will be ingested to and internal developer portal, so keep it abstracted and clear for developers, with a good vibe\"},
-                {\"role\": \"user\", \"content\": $LOG_CONTENT}
+                {\"role\": \"system\", \"content\": \"You're summarizing GitHub Action logs for developers using an internal developer portal. Focus on what happened, call out issues clearly if any, and keep the tone positive and clear.\"},
+                {\"role\": \"user\", \"content\": $LOG}
               ],
-              \"temperature\": 0.3
+              \"temperature\": 0.4
             }" | jq -r '.choices[0].message.content')
+
           echo "$SUMMARY" > summary.txt
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
 
-      - name: Send summary to Port
+      - name: Patch AI summary to Port
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -89,10 +103,10 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ env.PORT_RUN_ID }}
           logMessage: |
-            🤖 OpenAI Summary of Scaffold Step:
+            🤖 **AI-generated summary of scaffolding run**:
             ${{ steps.summarize.outputs.summary }}
 
-      - name: Create Service in Port with Repository Relation
+      - name: Create service entity in Port
         if: steps.scaffold.outcome == 'success'
         uses: port-labs/port-github-action@v1
         with:
@@ -108,7 +122,7 @@ jobs:
               "repository": "${{ inputs.service_name }}"
             }
 
-      - name: Create a log message (Done)
+      - name: Log finish
         uses: port-labs/port-github-action@v1
         with:
           clientId: ${{ secrets.PORT_CLIENT_ID }}
@@ -116,4 +130,4 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           runId: ${{ env.PORT_RUN_ID }}
-          logMessage: "Finished scaffolding of service and repository: ${{ inputs.service_name }}"
+          logMessage: "✅ Scaffolding complete for `${{ inputs.service_name }}`"
