@@ -64,15 +64,18 @@ jobs:
       - name: Summarize GitHub logs using OpenAI
         id: summarize
         env:
-          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
-          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
           RUN_ID: ${{ github.run_id }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           echo "📦 Downloading logs for this run..."
-          curl -s -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/logs" \
-            -L -o logs.zip
+          curl -sSL \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/$OWNER/$REPO_NAME/actions/runs/$RUN_ID/logs" \
+          -o logs.zip
 
           unzip logs.zip -d logs
           cat logs/* > full_log.txt
