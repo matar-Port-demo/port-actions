@@ -77,6 +77,13 @@ jobs:
           "https://api.github.com/repos/$OWNER/$REPO_NAME/actions/runs/$RUN_ID/logs" \
           -o logs.zip
 
+          echo "🧪 Checking if logs.zip is a valid zip file..."
+          if ! file logs.zip | grep -q "Zip archive data"; then
+            echo "❌ logs.zip is not a valid ZIP archive. Skipping summarization."
+            echo "summary=❌ Could not download or unzip GitHub logs. No AI summary generated." >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           unzip logs.zip -d logs
           cat logs/* > full_log.txt
 
