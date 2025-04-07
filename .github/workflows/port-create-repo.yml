@@ -64,7 +64,7 @@ jobs:
       - name: Summarize GitHub logs using OpenAI
         id: summarize
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
