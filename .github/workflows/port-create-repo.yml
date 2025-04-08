@@ -74,6 +74,9 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+
+          echo "⏳ Waiting 5 seconds before downloading logs..."
+          sleep 5
           echo "📦 Downloading logs for this run..."
           curl -sSL \
           -H "Authorization: token $GH_TOKEN" \
