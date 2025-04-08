@@ -1,5 +1,6 @@
 name: Scaffold a new service
-
+permissions:
+  actions: read  # 🔐 Required for downloading logs
 on:
   workflow_dispatch:
     inputs:
@@ -24,15 +25,14 @@ on:
         required: true
       OPENAI_API_KEY:
         required: true
-
+    
 jobs:
   scaffold-service:
     runs-on: ubuntu-latest
     env:
       ORG_NAME: <Your ORG name>
       PORT_RUN_ID: ${{ fromJson(inputs.port_context).runId }}
-    permissions:
-          actions: read  # 🔐 Required for downloading logs
+   
   
 
     steps:
