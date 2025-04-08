@@ -68,7 +68,7 @@ jobs:
         id: summarize
        
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           REPO_NAME: "port-actions"
           OWNER: "matar-Port-demo"
           RUN_ID: ${{ github.run_id }}
