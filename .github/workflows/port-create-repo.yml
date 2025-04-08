@@ -78,7 +78,7 @@ jobs:
           echo "⏳ Waiting 5 seconds before downloading logs..."
           sleep 5
           echo "📦 Downloading logs for this run..."
-          curl -sSL \
+          curl -L \
           -H "Authorization: Bearer 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" \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
