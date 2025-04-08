@@ -1,6 +1,5 @@
 name: Scaffold a new service
-permissions:
-  actions: read  # 🔐 Required for downloading logs
+
 on:
   workflow_dispatch:
     inputs:
@@ -32,6 +31,9 @@ jobs:
     env:
       ORG_NAME: <Your ORG name>
       PORT_RUN_ID: ${{ fromJson(inputs.port_context).runId }}
+    permissions:
+          actions: read  # 🔐 Required for downloading logs
+  
 
     steps:
       - name: Checkout
@@ -64,6 +66,7 @@ jobs:
 
       - name: Summarize GitHub logs using OpenAI
         id: summarize
+       
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: "port-actions"
